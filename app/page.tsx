@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import DialogueScene from "./components/DialogueScene";
+import Bubble from "./components/Bubble";
 
 type Scene = "intro" | "askName" | "greet" | "roomPlaceholder";
 
 const introLines = [
   "Ah... biri geldi!",
-  "Merhaba. Ben Balan. Sonsuza kadar yalnız kalacağım sanmıştım. Fakat Dünya gerçekten çok büyük.",
-  "Bir şeyleri unutmuş durumdayım ama sanırım bana sen yardım edebilirsin.",
+  "Merhaba. Ben Mina. Burada uzun zamandır birini bekliyordum.",
+  "Sanırım bir şeyleri unutmuş durumdayım ama sen yardım edebilirsin.",
 ];
 
 const greetLines = [
@@ -21,6 +22,12 @@ export default function Home() {
   const [name, setName] = useState("");
   const [draft, setDraft] = useState("");
 
+  function submitName() {
+    if (!draft.trim()) return;
+    setName(draft.trim());
+    setScene("greet");
+  }
+
   if (scene === "intro") {
     return <DialogueScene lines={introLines} name={name} onDone={() => setScene("askName")} />;
   }
@@ -29,32 +36,20 @@ export default function Home() {
     return (
       <div className="stage">
         <div className="character" />
-        <div className="bubble" style={{ cursor: "default" }}>
+        <Bubble>
           Peki senin adın ne?
           <input
             className="pixel-input"
             value={draft}
             maxLength={20}
             onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && draft.trim()) {
-                setName(draft.trim());
-                setScene("greet");
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && submitName()}
             autoFocus
           />
-          <button
-            className="pixel-btn"
-            disabled={!draft.trim()}
-            onClick={() => {
-              setName(draft.trim());
-              setScene("greet");
-            }}
-          >
+          <button className="pixel-btn" disabled={!draft.trim()} onClick={submitName}>
             Tamam
           </button>
-        </div>
+        </Bubble>
       </div>
     );
   }
@@ -65,7 +60,7 @@ export default function Home() {
 
   return (
     <div className="stage">
-      <div className="bubble">Oda sahnesi buraya gelecek, {name}!</div>
+      <Bubble>Oda sahnesi buraya gelecek, {name}!</Bubble>
     </div>
   );
 }
