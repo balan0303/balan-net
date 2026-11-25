@@ -14,7 +14,7 @@ html, body {
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  padding: 1rem 1rem 2rem;
+  padding: 1rem 1rem 14vh; /* alttaki değer büyüdükçe balon yukarı çıkar */
   background: linear-gradient(#2b1d4a, #1a1028);
 }
 
@@ -23,7 +23,9 @@ html, body {
   height: 160px;
   background: #f4a261; /* placeholder: sonra PNG ile değişecek */
   border: 4px solid #fff;
-  margin-bottom: 40px; /* balonun ucuna yer bırakır */
+  margin-bottom: 40px;
+  align-self: flex-start;
+  margin-left: max(0px, calc(50% - 450px)); /* balonun sol kenarıyla aynı hiza */
 }
 
 /* ---------- Pixel konuşma balonu ---------- */
@@ -71,10 +73,9 @@ html, body {
   position: absolute;
   pointer-events: none;
 }
-
 .bubble-wrap::before { /* siyah dış kısım */
   top: -24px;
-  left: calc(50% - 16px);
+  left: 64px; /* eskisi: calc(50% - 16px) */
   width: 32px;
   height: 30px;
   background: #111;
@@ -87,7 +88,7 @@ html, body {
 
 .bubble-wrap::after { /* beyaz iç kısım */
   top: -20px;
-  left: calc(50% - 12px);
+  left: 68px; /* eskisi: calc(50% - 12px) */
   width: 24px;
   height: 26px;
   background: #fff;
