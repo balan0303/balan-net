@@ -1,26 +1,69 @@
-@import "tailwindcss";
+* { box-sizing: border-box; }
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1028;
+  color: #fff;
+  image-rendering: pixelated;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.stage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(#2b1d4a, #1a1028);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.character {
+  width: 128px;
+  height: 128px;
+  background: #f4a261; /* placeholder: sonra PNG ile değişecek */
+  border: 4px solid #fff;
+  margin-bottom: 1.5rem;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.bubble {
+  width: min(720px, 100%);
+  min-height: 150px;
+  background: #fff;
+  color: #111;
+  border: 6px solid #111;
+  box-shadow: 6px 6px 0 #000;
+  padding: 1.2rem;
+  font-size: 14px;
+  line-height: 1.9;
+  cursor: pointer;
+}
+
+.hint {
+  display: block;
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.pixel-input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0.8rem;
+  border: 4px solid #111;
+  margin-top: 0.8rem;
+}
+
+.pixel-btn {
+  font-family: inherit;
+  font-size: 12px;
+  margin-top: 1rem;
+  padding: 0.8rem 1.2rem;
+  background: #111;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #888;
 }
