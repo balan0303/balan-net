@@ -5,129 +5,151 @@ html, body {
   min-height: 100%;
   background: #1a1028;
   color: #fff;
+  font-family: var(--font-alagard), var(--font-fallback), monospace;
   image-rendering: pixelated;
 }
 
-.stage {
+.vn-stage {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  padding: 1rem 1rem 14vh; /* alttaki değer büyüdükçe balon yukarı çıkar */
+  padding: 1rem 1rem 3vh;
   background: linear-gradient(#2b1d4a, #1a1028);
+  overflow: hidden;
 }
 
-.character {
-  width: 160px;
-  height: 160px;
-  background: #f4a261; /* placeholder: sonra PNG ile değişecek */
-  border: 4px solid #fff;
-  margin-bottom: 40px;
-  align-self: flex-start;
-  margin-left: max(0px, calc(50% - 450px)); /* balonun sol kenarıyla aynı hiza */
-}
+/* ---------- Büyük karakter ---------- */
 
-/* ---------- Pixel konuşma balonu ---------- */
-
-.bubble-wrap {
-  position: relative;
-  width: min(900px, 100%);
-}
-
-/* Dış çerçeve: siyah, basamaklı köşeler */
-.bubble {
-  background: #111;
-  padding: 6px;
-  clip-path: polygon(
-    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
-    calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px,
-    calc(100% - 4px) 8px, 100% 8px,
-    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px),
-    calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px),
-    calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px),
-    4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px)
-  );
-}
-
-/* İç dolgu: beyaz */
-.bubble-inner {
-  background: #fff;
-  color: #111;
-  min-height: 220px;
-  padding: 1.8rem 2rem;
-  font-size: 18px;
-  line-height: 2;
-  clip-path: polygon(
-    0 4px, 4px 4px, 4px 0,
-    calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px,
-    100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px),
-    calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px)
-  );
-}
-
-/* Balonun ucu: yukarıdaki karaktere doğru, basamaklı üçgen */
-.bubble-wrap::before,
-.bubble-wrap::after {
-  content: "";
-  position: absolute;
+.vn-character {
+  width: min(1000px, 100%);
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: -30px; /* alt kısmı kutunun arkasına girsin */
+  animation: vn-pop 0.25s ease-out;
   pointer-events: none;
 }
-.bubble-wrap::before { /* siyah dış kısım */
-  top: -24px;
-  left: 64px; /* eskisi: calc(50% - 16px) */
-  width: 32px;
-  height: 30px;
-  background: #111;
-  clip-path: polygon(
-    12px 0, 20px 0, 20px 4px, 24px 4px, 24px 8px, 28px 8px,
-    28px 12px, 32px 12px, 32px 100%, 0 100%, 0 12px, 4px 12px,
-    4px 8px, 8px 8px, 8px 4px, 12px 4px
-  );
+
+.vn-center { justify-content: center; }
+.vn-left   { justify-content: flex-start; }
+.vn-right  { justify-content: flex-end; }
+
+.vn-character img {
+  height: min(60vh, 560px);
+  width: auto;
+  image-rendering: pixelated;
 }
 
-.bubble-wrap::after { /* beyaz iç kısım */
-  top: -20px;
-  left: 68px; /* eskisi: calc(50% - 12px) */
-  width: 24px;
-  height: 26px;
-  background: #fff;
-  clip-path: polygon(
-    8px 0, 16px 0, 16px 4px, 20px 4px, 20px 8px, 24px 8px,
-    24px 100%, 0 100%, 0 8px, 4px 8px, 4px 4px, 8px 4px
-  );
+.vn-placeholder {
+  width: 280px;
+  height: min(55vh, 480px);
+  border: 6px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  font-size: 24px;
+}
+
+@keyframes vn-pop {
+  0%   { transform: translateY(14px); opacity: 0.6; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+/* ---------- Alt diyalog kutusu ---------- */
+
+.vn-box {
+  position: relative;
+  z-index: 2; /* karakterin önünde dursun */
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: min(1000px, 100%);
+  min-height: 200px;
+  padding: 2rem 1.8rem 1.5rem;
+  background: #1b1230;
+  border: 6px solid #fff;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.vn-name {
+  position: absolute;
+  top: -28px;
+  left: 1.5rem;
+  padding: 0.2rem 1rem;
+  background: #f4a261;
+  color: #111;
+  border: 4px solid #fff;
+  font-size: 24px;
+}
+
+.vn-portrait {
+  flex: 0 0 128px;
+  width: 128px;
+  height: 128px;
+  border: 4px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.vn-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.vn-text {
+  flex: 1;
+  font-size: 28px;
+  line-height: 1.5;
 }
 
 .hint {
   display: block;
   text-align: right;
   margin-top: 1rem;
-  font-size: 10px;
+  font-size: 16px;
   opacity: 0.6;
 }
 
 .pixel-input {
+  display: block;
   width: 100%;
   font-family: inherit;
-  font-size: 16px;
-  padding: 0.8rem;
-  border: 4px solid #111;
+  font-size: 24px;
+  padding: 0.6rem;
+  border: 4px solid #fff;
+  background: #fff;
+  color: #111;
   margin-top: 1rem;
 }
 
 .pixel-btn {
   font-family: inherit;
-  font-size: 12px;
+  font-size: 22px;
   margin-top: 1rem;
-  padding: 0.8rem 1.2rem;
-  background: #111;
-  color: #fff;
-  border: none;
+  padding: 0.5rem 1.2rem;
+  background: #f4a261;
+  color: #111;
+  border: 4px solid #fff;
   cursor: pointer;
-  box-shadow: 4px 4px 0 #888;
+  box-shadow: 4px 4px 0 #000;
 }
 
 .pixel-btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+@media (max-width: 640px) {
+  .vn-box { flex-direction: column; align-items: center; }
+  .vn-text { font-size: 22px; }
+  .vn-placeholder { width: 200px; font-size: 18px; }
 }

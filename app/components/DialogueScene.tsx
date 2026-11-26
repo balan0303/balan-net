@@ -1,9 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import Bubble from "./Bubble";
+import Character, { type Mood } from "./Character";
+import DialogueBox from "./DialogueBox";
+
+export type Line = { text: string; mood?: Mood };
 
 type Props = {
-  lines: string[];
+  lines: Line[];
   name: string;
   onDone: () => void;
 };
@@ -14,10 +17,10 @@ export default function DialogueScene({ lines, name, onDone }: Props) {
   const [i, setI] = useState(0);
   const [count, setCount] = useState(0);
 
-  const text = lines[i].replace(/\{isim\}/g, name || "yabancı");
+  const line = lines[i];
+  const text = line.text.replace(/\{isim\}/g, name || "yabancı");
   const finished = count >= text.length;
 
-  // Satır değişince harf harf yazmaya başla
   useEffect(() => {
     setCount(0);
     const id = setInterval(() => {
@@ -33,24 +36,20 @@ export default function DialogueScene({ lines, name, onDone }: Props) {
   }, [text]);
 
   function handleClick() {
-    if (!finished) {
-      setCount(text.length); // yazı bitmeden tıklanırsa hepsini göster
-    } else if (i < lines.length - 1) {
-      setI(i + 1);
-    } else {
-      onDone();
-    }
+    if (!finished) setCount(text.length);
+    else if (i < lines.length - 1) setI(i + 1);
+    else onDone();
   }
 
   return (
-    <div className="stage">
-      <div className="character" />
-      <Bubble onClick={handleClick}>
+    <div className="vn-stage">
+      <Character mood={line.mood} />
+      <DialogueBox mood={line.mood} onClick={handleClick}>
         {text.slice(0, count)}
         <span className="hint" style={{ visibility: finished ? "visible" : "hidden" }}>
           ▶ devam için tıkla
         </span>
-      </Bubble>
+      </DialogueBox>
     </div>
   );
 }

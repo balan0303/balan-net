@@ -1,20 +1,25 @@
 "use client";
 import { useState } from "react";
-import DialogueScene from "./components/DialogueScene";
-import Bubble from "./components/Bubble";
+import DialogueScene, { type Line } from "./components/DialogueScene";
+import DialogueBox from "./components/DialogueBox";
+import Character from "./components/Character";
 
-type Scene = "intro" | "askName" | "greet" | "roomPlaceholder";
+type Scene = "intro" | "askName" | "greet" | "hallPlaceholder";
 
-const introLines = [
-  "Ah... biri geldi!",
-  "Merhaba. Ben Mina. Burada uzun zamandır birini bekliyordum.",
-  "Sanırım bir şeyleri unutmuş durumdayım ama sen yardım edebilirsin.",
+const introLines: Line[] = [
+  { text: "Ah, biri gelmiş!", mood: "surprised" },
+  { text: "Merhaba, ben Bengi.", mood: "happy" },
+  { text: "Çok uzun süredir buradayım ama artık gitmem gerekiyor.", mood: "sad" },
+  { text: "Çünkü odamı kötücül süpergüçler ele geçirdi!", mood: "angry" },
+  { text: "Projelerim, yazılarım, matematiksel çalışmalarım... hepsi orada kaldı.", mood: "sad" },
+  { text: "Onları benim için geri getirebilir misin?", mood: "happy" },
 ];
 
-const greetLines = [
-  "Memnun oldum, {isim}!",
-  "Ne güzel bir isim. Hiç unutmayacağım.",
-  "Şimdi sana küçük bir görev vereceğim...",
+const greetLines: Line[] = [
+  { text: "Memnun oldum, {isim}!", mood: "happy" },
+  { text: "Odam koridorun sonunda ama kapısı kilitli.", mood: "neutral" },
+  { text: "İçeri girmek için önce bir labirentten geçmen gerekecek.", mood: "surprised" },
+  { text: "Ama önce salonda biraz etrafı karıştırabilirsin.", mood: "happy" },
 ];
 
 export default function Home() {
@@ -34,10 +39,10 @@ export default function Home() {
 
   if (scene === "askName") {
     return (
-      <div className="stage">
-        <div className="character" />
-        <Bubble>
-          Peki senin adın ne?
+      <div className="vn-stage">
+        <Character mood="happy" />
+        <DialogueBox mood="happy">
+          Önce adını söyler misin?
           <input
             className="pixel-input"
             value={draft}
@@ -49,18 +54,19 @@ export default function Home() {
           <button className="pixel-btn" disabled={!draft.trim()} onClick={submitName}>
             Tamam
           </button>
-        </Bubble>
+        </DialogueBox>
       </div>
     );
   }
 
   if (scene === "greet") {
-    return <DialogueScene lines={greetLines} name={name} onDone={() => setScene("roomPlaceholder")} />;
+    return <DialogueScene lines={greetLines} name={name} onDone={() => setScene("hallPlaceholder")} />;
   }
 
   return (
-    <div className="stage">
-      <Bubble>Oda sahnesi buraya gelecek, {name}!</Bubble>
+    <div className="vn-stage">
+      <Character mood="neutral" />
+      <DialogueBox mood="neutral">Salon sahnesi buraya gelecek, {name}!</DialogueBox>
     </div>
   );
 }
