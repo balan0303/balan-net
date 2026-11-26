@@ -11,7 +11,7 @@ const REACH = 60;
 const FEET_HW = 16;
 const FEET_HH = 8;
 const START = { x: 665, y: 620 };
-const DEBUG = true;
+const DEBUG = false;
 const SHOW_MASK = false;
 const DOOR_NEEDS_LETTER = false;
 
