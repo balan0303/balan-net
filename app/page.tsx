@@ -11,6 +11,8 @@ const introLines: Line[] = [
   { text: "Merhaba, ben Bengi.", mood: "happy" },
   { text: "Çok uzun süredir buradayım ama artık gitmem gerekiyor.", mood: "sad" },
   { text: "Çünkü odamı kötücül süpergüçler ele geçirdi!", mood: "angry" },
+  { text: "Biliyordum..Lanet olsun, peşimde olduklarını biliyordum!", mood: "angry" },
+  { text: "Neyse...", mood: "neutral" },
   { text: "Projelerim, yazılarım, matematiksel çalışmalarım... hepsi orada kaldı.", mood: "sad" },
   { text: "Onları benim için geri getirebilir misin?", mood: "happy" },
 ];
@@ -20,6 +22,7 @@ const greetLines: Line[] = [
   { text: "Odam koridorun sonunda ama kapısı kilitli.", mood: "neutral" },
   { text: "İçeri girmek için bir labirentten geçmen gerekecek.", mood: "surprised" },
   { text: "Ama önce salonda biraz etrafı karıştırabilirsin.", mood: "happy" },
+  { text: "Sonsuzluğa Giden Doğaüstü Kuyu'ya benim için bir mektup bırakmayı unutma!", mood: "happy" },
 ];
 
 export default function Home() {
