@@ -77,9 +77,12 @@ export default function Home() {
         onDoor={() => setScene("mazePlaceholder")}
       />
     );
-  }
-
+  }  
+  
   return (
     <div className="vn-stage">
       <Character mood="surprised" />
-      <DialogueBox
+      <DialogueBox mood="surprised">Labirent (Pacman) buraya gelecek, {name}!</DialogueBox>
+    </div>
+  );
+}

@@ -5,14 +5,15 @@ import Gallery from "./Gallery";
 
 const W = 1330;
 const H = 800;
-const PLAYER_SCALE = 1; // pixel art'ı 2x2 çizdiysen hayaleti yarı boyda çiz ve 2 yap
-const SPEED = 230; // çizim pikseli / saniye
-const REACH = 50; // objeye bu kadar yaklaşınca etkileşim açılır
-const FEET_HW = 16; // ayak kutusunun yarı genişliği (çarpışma için)
-const FEET_HH = 8; // ayak kutusunun yarı yüksekliği
-const START = { x: 665, y: 620 }; // başlangıç noktası (maskede beyaz değilse otomatik düzelir)
-const DEBUG = true; // koordinatları ayarlarken true, bitince false yap
-const DOOR_NEEDS_LETTER = false; // true yaparsan kapı mektup atılmadan açılmaz
+const PLAYER_SCALE = 1;
+const SPEED = 230;
+const REACH = 60;
+const FEET_HW = 16;
+const FEET_HH = 8;
+const START = { x: 665, y: 620 };
+const DEBUG = true;
+const SHOW_MASK = false;
+const DOOR_NEEDS_LETTER = false;
 
 type Spot = {
   id: string;
@@ -20,26 +21,22 @@ type Spot = {
   y: number;
   w: number;
   h: number;
+  reach?: number;
   label: string;
   kind: "info" | "well" | "board" | "door";
   text?: string;
 };
 
-// YER TUTUCU KOORDİNATLAR. Salonda fareyi eşyanın üstüne götür, alttaki x, y değerlerini oku,
-// sonra buradaki sayıları kendi çizimine göre değiştir. x,y = sol üst köşe, w,h = genişlik, yükseklik.
 const SPOTS: Spot[] = [
-  { id: "well", x: 560, y: 330, w: 200, h: 140, kind: "well", label: "Sonsuzluğa Giden Doğaüstü Kazan" },
-  { id: "board", x: 470, y: 40, w: 390, h: 130, kind: "board", label: "Fotoğraf panosu" },
-  { id: "tv", x: 80, y: 180, w: 150, h: 100, kind: "info", label: "Televizyon", text: "Bengi is watching American Horror Story season 8!" },
-  { id: "coffee", x: 300, y: 180, w: 80, h: 90, kind: "info", label: "Kahve makinesi", text: "Bengi's fourth coffee of the day." },
-  { id: "poster1", x: 940, y: 60, w: 110, h: 150, kind: "info", label: "Poster", text: "A superfan of NewJeans." },
-  { id: "poster2", x: 1080, y: 60, w: 90, h: 150, kind: "info", label: "Poster", text: "Another poster. She really likes posters." },
-  { id: "door", x: 1170, y: 100, w: 110, h: 200, kind: "door", label: "Bengi'nin odası" },
+  { id: "well", x: 1080, y: 285, w: 180, h: 140, reach: 110, kind: "well", label: "Sonsuzluğa Giden Doğaüstü Kazan" },
+  { id: "tv", x: 1165, y: 450, w: 140, h: 170, reach: 80, kind: "info", label: "Televizyon", text: "Meşhur American Horror Story dizisinin 8. sezonu televizyonda yaklaşık 56 saattir oynuyor." },
+  { id: "board", x: 290, y: 600, w: 180, h: 15, reach: 90, kind: "board", label: "Fotoğraf panosu" },
+  { id: "poster1", x: 70, y: 530, w: 74, h: 130, reach: 80, kind: "info", label: "Poster", text: "Bengi bir NewJeans süper-hayranı." },
+  { id: "door", x: 160, y: 190, w: 130, h: 200, reach: 90, kind: "door", label: "Bengi'nin odası" },
 ];
 
 const WELL = SPOTS.find((s) => s.id === "well")!;
 
-// ---- Maske: beyaz = yürünebilir ----
 let maskData: ImageData | null = null;
 
 function loadMask(src: string) {
@@ -59,7 +56,7 @@ function walkable(x: number, y: number) {
   const ix = Math.floor(x);
   const iy = Math.floor(y);
   if (ix < 0 || iy < 0 || ix >= W || iy >= H) return false;
-  if (!maskData) return true; // maske yoksa serbest
+  if (!maskData) return true;
   const i = (iy * W + ix) * 4;
   return maskData.data[i + 3] > 128 && maskData.data[i] > 128;
 }
@@ -112,7 +109,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
     sentRef.current = letterSent;
   }, [letterSent]);
 
-  // Klavye
   useEffect(() => {
     function interact() {
       const s = nearRef.current;
@@ -153,7 +149,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
     };
   }, [letterSent, onDoor]);
 
-  // Oyun döngüsü
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
@@ -163,6 +158,7 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
       before: load("/hall/hall-before.png"),
       after: load("/hall/hall-after.png"),
       player: load("/hall/player.png"),
+      mask: load("/hall/mask.png"),
     };
     loadMask("/hall/mask.png");
 
@@ -175,7 +171,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
     let spawn = 0;
     let raf = 0;
 
-    // Başlangıç beyaz değilse en yakın beyaz noktayı bul
     function fixStart() {
       if (!blocked(p.x, p.y)) return;
       for (let r = 6; r < 900; r += 6) {
@@ -201,7 +196,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
         fixStart();
       }
 
-      // hareket
       let dx = 0;
       let dy = 0;
       const k = keys.current;
@@ -220,20 +214,23 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
         if (!blocked(p.x, p.y + dy)) p.y += dy;
       }
 
-      // yakındaki obje
-      const s =
-        SPOTS.find(
-          (s) =>
-            p.x >= s.x - REACH && p.x <= s.x + s.w + REACH &&
-            p.y >= s.y - REACH && p.y <= s.y + s.h + REACH
-        ) ?? null;
+      let s: Spot | null = null;
+      let best = Infinity;
+      for (const sp of SPOTS) {
+        const cx = Math.max(sp.x, Math.min(p.x, sp.x + sp.w));
+        const cy = Math.max(sp.y, Math.min(p.y, sp.y + sp.h));
+        const d = Math.hypot(p.x - cx, p.y - cy);
+        if (d <= (sp.reach ?? REACH) && d < best) {
+          best = d;
+          s = sp;
+        }
+      }
       if (s?.id !== nearRef.current?.id) {
         nearRef.current = s;
         setNear(s);
         setInfo(null);
       }
 
-      // pırıltılar
       if (moving) {
         spawn += dt;
         if (spawn > 0.05) {
@@ -260,7 +257,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
       }
       parts = parts.filter((q) => q.life > 0);
 
-      // çizim
       const bg = sentRef.current ? imgs.after : imgs.before;
       if (bg.ok) ctx.drawImage(bg.img, 0, 0, W, H);
       else {
@@ -275,7 +271,6 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
         const ph = imgs.player.img.height * P;
         ctx.drawImage(imgs.player.img, Math.round(p.x - pw / 2), Math.round(p.y - ph + FEET_HH), pw, ph);
       } else {
-        // yer tutucu hayalet
         const bob = Math.round(Math.sin(t * 4)) * 3;
         const gy = y + bob;
         ctx.fillStyle = "#f3ecff";
@@ -296,13 +291,24 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
       }
       ctx.globalAlpha = 1;
 
+      if (SHOW_MASK && imgs.mask.ok) {
+        ctx.globalAlpha = 0.35;
+        ctx.drawImage(imgs.mask.img, 0, 0, W, H);
+        ctx.globalAlpha = 1;
+      }
+
       if (DEBUG) {
         ctx.lineWidth = 2;
-        ctx.strokeStyle = "lime";
-        for (const b of SPOTS) ctx.strokeRect(b.x, b.y, b.w, b.h);
-        ctx.strokeStyle = "yellow";
-        for (const b of SPOTS)
-          ctx.strokeRect(b.x - REACH, b.y - REACH, b.w + REACH * 2, b.h + REACH * 2);
+        ctx.font = "20px monospace";
+        for (const b of SPOTS) {
+          ctx.strokeStyle = "lime";
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+          ctx.fillStyle = "lime";
+          ctx.fillText(b.id, b.x, b.y - 4);
+          const r = b.reach ?? REACH;
+          ctx.strokeStyle = "yellow";
+          ctx.strokeRect(b.x - r, b.y - r, b.w + r * 2, b.h + r * 2);
+        }
         ctx.strokeStyle = "cyan";
         ctx.strokeRect(p.x - FEET_HW, p.y - FEET_HH, FEET_HW * 2, FEET_HH * 2);
       }
@@ -321,6 +327,16 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
     setCoord(`x: ${x}, y: ${y}`);
   }
 
+  function clickCanvas(e: React.MouseEvent<HTMLCanvasElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * W;
+    const y = ((e.clientY - rect.top) / rect.height) * H;
+    const hit = SPOTS.find((s) => x >= s.x && x <= s.x + s.w && y >= s.y && y <= s.y + s.h);
+    if (hit && nearRef.current?.id === hit.id) {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "e" }));
+    }
+  }
+
   return (
     <div className="hall-stage">
       <div className="hall-frame">
@@ -330,6 +346,7 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
           height={H}
           className="hall-canvas"
           onMouseMove={showCoord}
+          onClick={clickCanvas}
         />
         {near && !modal && !info && <div className="hall-prompt">[E] {near.label}</div>}
         {info && (
