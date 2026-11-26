@@ -200,4 +200,159 @@ html, body { background: #000; }
   z-index: 9999;
   animation: trail 0.7s forwards;
 }
-@keyframes trail { to { transform: translate(var(--dx), 24px) scale(0); opacity: 0; }
+@keyframes trail { to { transform: translate(var(--dx), 24px) scale(0); opacity: 0; } }
+
+/* Salon */
+.hall-stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+}
+.hall-frame {
+  position: relative;
+  width: min(62vw, calc((100vh - 150px) * 1330 / 800), 980px);
+  aspect-ratio: 1330 / 800;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 4px #000, 0 0 30px #ff9ecb88;
+  background: #000;
+}
+.hall-canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.hall-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: #1b1230;
+  border: 3px solid #fff;
+  padding: 4px 14px;
+  font-size: 20px;
+  white-space: nowrap;
+}
+.hall-info {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 12px;
+  background: #1b1230;
+  border: 4px solid #fff;
+  box-shadow: 6px 6px 0 #000;
+  padding: 14px 18px;
+  font-size: 26px;
+}
+.hall-help { font-size: 16px; opacity: 0.6; pointer-events: none; }
+
+/* Pencere arka planı (mektup ve pano) */
+.modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+/* Mektup */
+.letter {
+  width: min(640px, 100%);
+  background: #fff6d6;
+  color: #3a2a1a;
+  border: 6px solid #3a2a1a;
+  box-shadow: 8px 8px 0 #000;
+  padding: 1.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 22px;
+}
+.letter label { display: flex; gap: 0.6rem; align-items: center; }
+.letter .lbl { flex: 0 0 150px; }
+.letter input,
+.letter textarea {
+  flex: 1;
+  font-family: inherit;
+  font-size: 22px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px dashed #3a2a1a;
+  color: #3a2a1a;
+  padding: 0.2rem 0.3rem;
+  outline: none;
+}
+.letter textarea { width: 100%; min-height: 140px; border: 3px dashed #3a2a1a; resize: none; }
+.letter .bad { border-color: #e5586a !important; background: #ffe0e6; }
+.letter-err { color: #c2224a; }
+.letter-btns { display: flex; gap: 1rem; justify-content: flex-end; }
+
+.letter-drop { animation: letter-drop 2s ease-in forwards; }
+@keyframes letter-drop {
+  0%   { transform: none; opacity: 1; }
+  25%  { transform: scale(0.55) rotate(-4deg); opacity: 1; }
+  100% { transform: translateY(42vh) scale(0.08) rotate(25deg); opacity: 0; }
+}
+.well-hole {
+  position: fixed;
+  left: 50%;
+  bottom: 6vh;
+  width: 140px;
+  height: 40px;
+  margin-left: -70px;
+  border-radius: 50%;
+  background: radial-gradient(#000 40%, #ff9ecb 100%);
+  box-shadow: 0 0 40px #ff9ecb;
+}
+
+/* Fotoğraf panosu */
+.gal-esc { position: fixed; top: 14px; right: 20px; font-size: 20px; opacity: 0.8; }
+.gal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  width: min(900px, 100%);
+  background: #8a5a3b;
+  border: 8px solid #4a2f1d;
+  padding: 22px;
+}
+.photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 6px solid #fff;
+  box-shadow: 4px 4px 0 #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #111;
+  overflow: hidden;
+}
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.gal-grid .photo:hover { filter: brightness(1.15); }
+.gal-zoom { display: flex; align-items: center; justify-content: center; gap: 16px; width: min(1000px, 100%); }
+.gal-zoom .photo { flex: 1; max-width: 760px; }
+.gal-arrow {
+  font-family: inherit;
+  font-size: 44px;
+  background: #f4a261;
+  color: #111;
+  border: 4px solid #fff;
+  box-shadow: 4px 4px 0 #000;
+  padding: 0.2rem 1rem;
+}
+.gal-cap { margin-top: 18px; font-size: 26px; }
+.gal-info {
+  margin-top: 10px;
+  max-width: min(760px, 100%);
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
