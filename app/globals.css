@@ -153,3 +153,51 @@ html, body {
   .vn-text { font-size: 22px; }
   .vn-placeholder { width: 200px; font-size: 18px; }
 }
+/* ===== Salon, uzay arka planı ve sihirli efektler ===== */
+html, body { background: #000; }
+* { cursor: url(/cursor.svg) 13 13, auto !important; }
+.vn-stage { background: transparent; z-index: 1; }
+
+/* Yıldızlı arka plan */
+.starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.star { position: absolute; animation: twinkle 3s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+
+.shooting {
+  position: absolute;
+  width: 90px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff);
+  opacity: 0;
+  animation: shoot 12s linear infinite;
+}
+@keyframes shoot {
+  0%   { transform: translate(0, 0) rotate(35deg); opacity: 0; }
+  2%   { opacity: 1; }
+  10%  { transform: translate(320px, 220px) rotate(35deg); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.sky-tip {
+  position: fixed;
+  transform: translate(16px, 16px);
+  z-index: 50;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffd1ea;
+  border: 2px solid #ff9ecb;
+  font-size: 18px;
+}
+
+/* İmleç pırıltı izi */
+.trail {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: trail 0.7s forwards;
+}
+@keyframes trail { to { transform: translate(var(--dx), 24px) scale(0); opacity: 0; }
