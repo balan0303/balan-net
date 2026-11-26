@@ -10,7 +10,7 @@ type Scene = "intro" | "askName" | "greet" | "hall" | "mazePlaceholder";
 const introLines: Line[] = [
   { text: "Ah, biri gelmiş!", mood: "surprised" },
   { text: "Merhaba, ben Bengi.", mood: "happy" },
-  { text: "Çok uzun süredir buradayım ama artık gitmem gerekiyor.", mood: "sad" },
+  { text: "Çok uzun süredir buradayım fakat artık gitmem gerekiyor.", mood: "sad" },
   { text: "Çünkü odamı kötücül süpergüçler ele geçirdi!", mood: "angry" },
   { text: "Biliyordum..Lanet olsun, peşimde olduklarını biliyordum!", mood: "angry" },
   { text: "Neyse...", mood: "neutral" },
@@ -82,7 +82,7 @@ export default function Home() {
   return (
     <div className="vn-stage">
       <Character mood="surprised" />
-      <DialogueBox mood="surprised">Labirent (Pacman) buraya gelecek, {name}!</DialogueBox>
+      <DialogueBox mood="surprised">Her kim bir canavarla çarpışmayı göze alırsa, bir canavar olmayı da göze almalıdır {name}! Boğulursan büyük suda boğul. </DialogueBox>
     </div>
   );
 }
