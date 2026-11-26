@@ -20,11 +20,18 @@ export default function Starfield() {
       }))
     );
 
+    function move(e: MouseEvent) {
       const el = e.target as HTMLElement;
       // Diyalog kutusu, salon çerçevesi, pencereler, input ve butonların dışı = arka plan
       const onBackground = !el.closest(
         ".vn-box, .hall-frame, .modal-back, input, button, textarea"
       );
+      setTip(onBackground ? { x: e.clientX, y: e.clientY } : null);
+    }
+
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
 
   return (
     <>
