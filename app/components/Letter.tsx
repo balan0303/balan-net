@@ -40,19 +40,19 @@ export default function Letter({ defaultFrom, onClose, onSent }: Props) {
       {sending && <div className="well-hole" />}
       <div className={`letter ${sending ? "letter-drop" : ""}`}>
         <label>
-          <span className="lbl">Kimden:</span>
+          <span className="lbl">kimden:</span>
           <input className={bad(from)} value={from} maxLength={40} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label>
-          <span className="lbl">Kime:</span>
+          <span className="lbl">kime:</span>
           <span>b.alan</span>
         </label>
         <label>
-          <span className="lbl">Başlık:</span>
+          <span className="lbl">başlık:</span>
           <input className={bad(title)} value={title} maxLength={60} onChange={(e) => setTitle(e.target.value)} />
         </label>
         <label>
-          <span className="lbl">İletişim için:</span>
+          <span className="lbl">b.alan iade-i ziyaret için sana nasıl ulaşabilir? </span>
           <input
             className={bad(contact)}
             placeholder="e-posta, instagram..."
@@ -63,7 +63,7 @@ export default function Letter({ defaultFrom, onClose, onSent }: Props) {
         </label>
         <textarea
           className={bad(message)}
-          placeholder="Sevgili Balan, ..."
+          placeholder="sevgili bengi, ..."
           value={message}
           maxLength={1000}
           onChange={(e) => setMessage(e.target.value)}

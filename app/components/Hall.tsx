@@ -367,7 +367,7 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
           onSent={() => {
             setModal(null);
             onLetterSent();
-            setInfo("Kazan pembe bir ışıkla parladı... mektubun yola çıktı!");
+            setInfo("Kazan mektubunu garip sesler çıkararak yuttu. Sana mektubunun yolda olduğunu söyledi. Üzerine ölümcül-kazan-petrolü sıçradı.");
           }}
         />
       )}
