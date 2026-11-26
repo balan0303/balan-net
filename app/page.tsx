@@ -18,7 +18,7 @@ const introLines: Line[] = [
 const greetLines: Line[] = [
   { text: "Memnun oldum, {isim}!", mood: "happy" },
   { text: "Odam koridorun sonunda ama kapısı kilitli.", mood: "neutral" },
-  { text: "İçeri girmek için önce bir labirentten geçmen gerekecek.", mood: "surprised" },
+  { text: "İçeri girmek için bir labirentten geçmen gerekecek.", mood: "surprised" },
   { text: "Ama önce salonda biraz etrafı karıştırabilirsin.", mood: "happy" },
 ];
 
