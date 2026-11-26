@@ -3,8 +3,9 @@ import { useState } from "react";
 import DialogueScene, { type Line } from "./components/DialogueScene";
 import DialogueBox from "./components/DialogueBox";
 import Character from "./components/Character";
+import Hall from "./components/Hall";
 
-type Scene = "intro" | "askName" | "greet" | "hallPlaceholder";
+type Scene = "intro" | "askName" | "greet" | "hall" | "mazePlaceholder";
 
 const introLines: Line[] = [
   { text: "Ah, biri gelmiş!", mood: "surprised" },
@@ -21,14 +22,15 @@ const greetLines: Line[] = [
   { text: "Memnun oldum, {isim}!", mood: "happy" },
   { text: "Odam koridorun sonunda ama kapısı kilitli.", mood: "neutral" },
   { text: "İçeri girmek için bir labirentten geçmen gerekecek.", mood: "surprised" },
-  { text: "Ama önce salonda biraz etrafı karıştırabilirsin.", mood: "happy" },
-  { text: "Sonsuzluğa Giden Doğaüstü Kuyu'ya benim için bir mektup bırakmayı unutma!", mood: "happy" },
+  { text: "Ama önce biraz etrafı karıştırabilirsin.", mood: "happy" },
+  { text: "Sonsuzluğa Giden Doğaüstü Kazan'a benim için bir mektup bırakmayı unutma!", mood: "happy" },
 ];
 
 export default function Home() {
   const [scene, setScene] = useState<Scene>("intro");
   const [name, setName] = useState("");
   const [draft, setDraft] = useState("");
+  const [letterSent, setLetterSent] = useState(false);
 
   function submitName() {
     if (!draft.trim()) return;
@@ -63,13 +65,21 @@ export default function Home() {
   }
 
   if (scene === "greet") {
-    return <DialogueScene lines={greetLines} name={name} onDone={() => setScene("hallPlaceholder")} />;
+    return <DialogueScene lines={greetLines} name={name} onDone={() => setScene("hall")} />;
+  }
+
+  if (scene === "hall") {
+    return (
+      <Hall
+        name={name}
+        letterSent={letterSent}
+        onLetterSent={() => setLetterSent(true)}
+        onDoor={() => setScene("mazePlaceholder")}
+      />
+    );
   }
 
   return (
     <div className="vn-stage">
-      <Character mood="neutral" />
-      <DialogueBox mood="neutral">Salon sahnesi buraya gelecek, {name}!</DialogueBox>
-    </div>
-  );
-}
+      <Character mood="surprised" />
+      <DialogueBox
