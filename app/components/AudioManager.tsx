@@ -11,24 +11,31 @@ const FILES: Record<Exclude<Track, null>, string> = {
   monster: "/audio/monster.mp3",
 };
 
-const VOLUME = 0.3; // müzik sesi (0 ile 1 arası)
-const FADE_MS = 900; // geçiş süresi
+const VOLUME = 0.3;
+const FADE_MS = 900;
 
 let current: HTMLAudioElement | null = null;
 let wanted: Track = null;
-let unlocked = false; // ilk tıklamadan sonra true olur
+let unlocked = false;
 let muted = false;
 
 function fade(a: HTMLAudioElement, to: number, ms: number, then?: () => void) {
+  const id = String(Math.random());
+  a.dataset.fade = id; // yeni bir geçiş başlarsa eskisi durur
   const from = a.volume;
   const start = performance.now();
   function step(now: number) {
+    if (a.dataset.fade !== id) return;
     const k = Math.min(1, (now - start) / ms);
     a.volume = from + (to - from) * k;
     if (k < 1) requestAnimationFrame(step);
     else then?.();
   }
   requestAnimationFrame(step);
+}
+
+function tryPlay(a: HTMLAudioElement) {
+  a.play().catch((err) => console.warn("Müzik çalınamadı:", a.dataset.src, err));
 }
 
 function apply() {
@@ -46,19 +53,17 @@ function apply() {
     a.volume = 0;
     a.muted = muted;
     a.dataset.src = file;
-    a.play().catch(() => {});
-    fade(a, VOLUME, FADE_MS);
     current = a;
+    tryPlay(a);
+    fade(a, VOLUME, FADE_MS);
   }
 }
 
-// Herhangi bir yerden çağır: setTrack("hall")
 export function setTrack(t: Track) {
   wanted = t;
   apply();
 }
 
-// Ses efekti
 export function playSfx(src: string, volume = 0.5) {
   if (muted) return;
   const a = new Audio(src);
@@ -66,7 +71,6 @@ export function playSfx(src: string, volume = 0.5) {
   a.play().catch(() => {});
 }
 
-// Sayfaya <Music track="site" /> koyarak da kullanılabilir
 export function Music({ track }: { track: Track }) {
   useEffect(() => {
     setTrack(track);
@@ -78,17 +82,17 @@ export default function AudioManager() {
   const [off, setOff] = useState(false);
 
   useEffect(() => {
-    function unlock() {
+    // Her tıklama ve tuşta: kilidi aç, çalması gereken parça durmuşsa tekrar dene
+    function interact() {
       unlocked = true;
       apply();
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
+      if (current && current.paused) tryPlay(current);
     }
-    window.addEventListener("pointerdown", unlock);
-    window.addEventListener("keydown", unlock);
+    window.addEventListener("pointerdown", interact);
+    window.addEventListener("keydown", interact);
     return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("pointerdown", interact);
+      window.removeEventListener("keydown", interact);
     };
   }, []);
 

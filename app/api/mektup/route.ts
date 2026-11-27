@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Boş alan var." }, { status: 400 });
   }
 
-  const res = await fetch("https://api.resend.com/emails", {
+   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
@@ -50,7 +50,9 @@ export async function POST(req: Request) {
   });
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Gönderilemedi." }, { status: 502 });
+    const detail = await res.text();
+    console.error("Resend hatası:", res.status, detail);
+    return NextResponse.json({ error: "Gönderilemedi.", detail }, { status: 502 });
   }
 
   lastSent.set(ip, now);
