@@ -1,9 +1,8 @@
-import { playSfx } from "./AudioManager";
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Letter from "./Letter";
 import Gallery from "./Gallery";
-
+import { playSfx } from "./AudioManager";
 const W = 1330;
 const H = 800;
 const PLAYER_SCALE = 1;
