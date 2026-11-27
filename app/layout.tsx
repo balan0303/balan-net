@@ -4,6 +4,7 @@ import { Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 import Starfield from "./components/Starfield";
 import SparkleTrail from "./components/SparkleTrail";
+import AudioManager from "./components/AudioManager";
 
 const alagard = localFont({
   src: "./fonts/alagard.ttf",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${alagard.variable} ${fallback.variable}`}>
         <Starfield />
         <SparkleTrail />
+                <AudioManager />
         {children}
       </body>
     </html>

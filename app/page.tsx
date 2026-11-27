@@ -1,9 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DialogueScene, { type Line } from "./components/DialogueScene";
 import DialogueBox from "./components/DialogueBox";
 import Character from "./components/Character";
 import Hall from "./components/Hall";
+import { setTrack } from "./components/AudioManager";
 
 type Scene = "intro" | "askName" | "greet" | "hall" | "mazePlaceholder";
 
@@ -31,6 +32,11 @@ export default function Home() {
   const [name, setName] = useState("");
   const [draft, setDraft] = useState("");
   const [letterSent, setLetterSent] = useState(false);
+    useEffect(() => {
+    if (scene === "hall") setTrack("hall");
+    else if (scene === "mazePlaceholder") setTrack("maze");
+    else setTrack("intro");
+  }, [scene]);
 
   function submitName() {
     if (!draft.trim()) return;

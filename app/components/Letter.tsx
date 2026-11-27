@@ -14,6 +14,7 @@ export default function Letter({ defaultFrom, onClose, onSent }: Props) {
   const [message, setMessage] = useState("");
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
+    const [error, setError] = useState("");
 
   const missing = !from.trim() || !title.trim() || !contact.trim() || !message.trim();
 
@@ -25,12 +26,23 @@ export default function Letter({ defaultFrom, onClose, onSent }: Props) {
     return () => window.removeEventListener("keydown", key);
   }, [sending, onClose]);
 
-  function send() {
+    async function send() {
     setTried(true);
+    setError("");
     if (missing || sending) return;
     setSending(true);
-    // TODO: burada /api/mektup'a gerçek istek gönderilecek (bir sonraki adım)
-    setTimeout(onSent, 2200);
+    try {
+      const res = await fetch("/api/mektup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from, title, contact, message }),
+      });
+      if (!res.ok) throw new Error();
+      setTimeout(onSent, 2200); // düşme animasyonu bitince kapanır
+    } catch {
+      setSending(false);
+      setError("Mektup gönderilemedi, biraz sonra tekrar dene.");
+    }
   }
 
   const bad = (v: string) => (tried && !v.trim() ? "bad" : "");
@@ -69,6 +81,7 @@ export default function Letter({ defaultFrom, onClose, onSent }: Props) {
           onChange={(e) => setMessage(e.target.value)}
         />
         {tried && missing && <div className="letter-err">Boş alan kalmasın!</div>}
+                {error && <div className="letter-err">{error}</div>}
         <div className="letter-btns">
           <button className="pixel-btn" onClick={onClose} disabled={sending}>Vazgeç</button>
           <button className="pixel-btn" onClick={send} disabled={sending}>Mektubu At ✦</button>

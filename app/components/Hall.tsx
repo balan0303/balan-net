@@ -1,3 +1,4 @@
+import { playSfx } from "./AudioManager";
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Letter from "./Letter";
@@ -360,12 +361,13 @@ export default function Hall({ name, letterSent, onLetterSent, onDoor }: Props) 
         {DEBUG && coord && <span> · fare: {coord}</span>}
       </div>
 
-      {modal === "letter" && (
+           {modal === "letter" && (
         <Letter
           defaultFrom={name}
           onClose={() => setModal(null)}
           onSent={() => {
             setModal(null);
+            playSfx("/audio/sparkle.mp3");
             onLetterSent();
             setInfo("Kazan mektubunu garip sesler çıkararak yuttu. Sana mektubunun yolda olduğunu söyledi. Üzerine ölümcül-kazan-petrolü sıçradı.");
           }}
