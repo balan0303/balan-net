@@ -1,17 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DialogueScene, { type Line } from "./components/DialogueScene";
 import DialogueBox from "./components/DialogueBox";
 import Character from "./components/Character";
 import Hall from "./components/Hall";
+import Maze from "./components/Maze";
+import FallText from "./components/FallText";
+import MonsterMouth from "./components/MonsterMouth";
 import { setTrack } from "./components/AudioManager";
 
-type Scene = "intro" | "askName" | "greet" | "hall" | "mazePlaceholder";
+type Scene = "intro" | "askName" | "greet" | "hall" | "maze" | "fall" | "monster";
 
 const introLines: Line[] = [
   { text: "Ah, biri gelmiş!", mood: "surprised" },
   { text: "Merhaba, ben Bengi.", mood: "happy" },
-  { text: "Çok uzun süredir buradayım fakat artık gitmem gerekiyor.", mood: "sad" },
+  { text: "Çok uzun süredir buradayım ama artık gitmem gerekiyor.", mood: "sad" },
   { text: "Çünkü odamı kötücül süpergüçler ele geçirdi!", mood: "angry" },
   { text: "Biliyordum..Lanet olsun, peşimde olduklarını biliyordum!", mood: "angry" },
   { text: "Neyse...", mood: "neutral" },
@@ -27,14 +31,23 @@ const greetLines: Line[] = [
   { text: "Sonsuzluğa Giden Doğaüstü Kazan'a benim için bir mektup bırakmayı unutma!", mood: "happy" },
 ];
 
+const fallLines = [
+  "Canavarın ağzına doğru yuvarlandın...",
+  "Her yer karanlık ve ıslak. Uzaktan bir şeyler parlıyor.",
+];
+
 export default function Home() {
+  const router = useRouter();
   const [scene, setScene] = useState<Scene>("intro");
   const [name, setName] = useState("");
   const [draft, setDraft] = useState("");
   const [letterSent, setLetterSent] = useState(false);
-    useEffect(() => {
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
     if (scene === "hall") setTrack("hall");
-    else if (scene === "mazePlaceholder") setTrack("maze");
+    else if (scene === "maze") setTrack("maze");
+    else if (scene === "fall" || scene === "monster") setTrack("monster");
     else setTrack("intro");
   }, [scene]);
 
@@ -80,15 +93,35 @@ export default function Home() {
         name={name}
         letterSent={letterSent}
         onLetterSent={() => setLetterSent(true)}
-        onDoor={() => setScene("mazePlaceholder")}
+        onDoor={() => setScene("maze")}
       />
     );
-  }  
-  
+  }
+
+  if (scene === "maze") {
+    return (
+      <Maze
+        key={attempt}
+        onWin={() => {
+          sessionStorage.setItem("ziyaretci", name);
+          router.push("/projeler");
+        }}
+        onLose={() => setScene("fall")}
+      />
+    );
+  }
+
+  if (scene === "fall") {
+    return <FallText lines={fallLines} onDone={() => setScene("monster")} />;
+  }
+
   return (
-    <div className="vn-stage">
-      <Character mood="surprised" />
-      <DialogueBox mood="surprised">Her kim bir canavarla çarpışmayı göze alırsa, bir canavar olmayı da göze almalıdır {name}! Boğulursan büyük suda boğul. </DialogueBox>
-    </div>
+    <MonsterMouth
+      onRetry={() => {
+        setAttempt((a) => a + 1);
+        setScene("maze");
+      }}
+      onBack={() => setScene("hall")}
+    />
   );
 }

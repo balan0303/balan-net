@@ -368,3 +368,145 @@ html, body { background: #000; }
   border: 3px solid #fff;
   padding: 4px 12px;
 }
+/* ===== Labirent (Pacman) ===== */
+.maze-stage {
+  --mw: min(92vw, calc((100vh - 130px) * 304 / 336), 640px);
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+}
+.maze-hud {
+  display: flex;
+  justify-content: space-between;
+  width: var(--mw);
+  font-size: 22px;
+  color: #ffe94a;
+}
+.maze-frame {
+  position: relative;
+  width: var(--mw);
+  aspect-ratio: 304 / 336;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 4px #000, 0 0 30px #ff9ecb88;
+  background: #000;
+}
+.maze-canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+
+.maze-banner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  letter-spacing: 2px;
+  font-size: clamp(28px, 5.5vw, 64px);
+  text-shadow: 4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+}
+.maze-banner.ready {
+  color: #ffe94a;
+  top: 55%;
+  font-size: clamp(20px, 3.4vw, 40px);
+}
+.maze-banner.win,
+.maze-banner.lose {
+  padding: 0.3em 0.6em;
+  background: rgba(0, 0, 0, 0.7);
+  animation: banner-pop 0.35s steps(4) both, banner-blink 0.5s steps(2) 0.35s infinite;
+}
+.maze-banner.win { color: #ffe94a; border: 4px solid #ff9ecb; }
+.maze-banner.lose { color: #ff3b5c; border: 4px solid #ff3b5c; }
+@keyframes banner-pop {
+  from { transform: translate(-50%, -50%) scale(0.3); }
+  to   { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes banner-blink { 50% { opacity: 0.55; } }
+
+/* ===== Düşüş ekranı ===== */
+.fall-stage {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+}
+.fall-text {
+  max-width: 900px;
+  text-align: center;
+  font-size: clamp(24px, 3.4vw, 44px);
+  line-height: 1.5;
+  color: #ffd1ea;
+  text-shadow: 3px 3px 0 #000;
+}
+.fall-stage .hint { text-align: center; }
+
+/* ===== Canavarın ağzı ===== */
+.mouth-frame {
+  background: radial-gradient(ellipse at 50% 40%, #6b1f3d, #1a0510);
+  overflow: hidden;
+}
+.mouth-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.mouth-hit { position: absolute; cursor: pointer; }
+.mouth-hit.debug { outline: 2px dashed lime; }
+.mouth-sheet {
+  position: absolute;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+@keyframes sheet {
+  from { background-position: 0 0; }
+  to   { background-position: 100% 0; }
+}
+.mouth-glow {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: lamp-flicker 6s ease-in-out infinite;
+}
+@keyframes lamp-flicker {
+  0%, 100% { opacity: 0.2;  transform: translate(-50%, -50%) scale(0.85); }
+  10%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.1); }
+  14%      { opacity: 0.35; transform: translate(-50%, -50%) scale(0.95); }
+  18%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
+  30%      { opacity: 0.5;  transform: translate(-50%, -50%) scale(1); }
+  70%      { opacity: 0.25; transform: translate(-50%, -50%) scale(0.9); }
+  80%      { opacity: 0.9;  transform: translate(-50%, -50%) scale(1.08); }
+}
+.mouth-btns { display: flex; gap: 16px; }
+.mouth-btns .pixel-btn { margin-top: 0; }
+
+/* ===== Site placeholder ===== */
+.site-placeholder {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  text-align: center;
+  font-size: 24px;
+}
+.site-placeholder a.pixel-btn { display: inline-block; text-decoration: none; }
