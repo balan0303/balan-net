@@ -11,16 +11,29 @@ const FILES: Record<Exclude<Track, null>, string> = {
   monster: "/audio/monster.mp3",
 };
 
-const VOLUME = 0.3;
-const FADE_MS = 900;
+const VOLUME = 0.3; // müzik sesi (0 ile 1 arası)
+const FADE_MS = 1800; // fade in / fade out süresi
 
-let current: HTMLAudioElement | null = null;
+const els: Partial<Record<string, HTMLAudioElement>> = {};
 let wanted: Track = null;
 let unlocked = false;
 let muted = false;
 
-function fade(a: HTMLAudioElement, to: number, ms: number, then?: () => void) {
-  const id = String(Math.random());
+function ensure(name: Exclude<Track, null>) {
+  let a = els[name];
+  if (!a) {
+    a = new Audio(FILES[name]);
+    a.loop = true;
+    a.preload = "auto";
+    a.volume = 0;
+    a.muted = muted;
+    els[name] = a;
+  }
+  return a;
+}
+
+function fadeTo(a: HTMLAudioElement, to: number, ms: number, then?: () => void) {
+  const id = Math.random().toString(36);
   a.dataset.fade = id; // yeni bir geçiş başlarsa eskisi durur
   const from = a.volume;
   const start = performance.now();
@@ -34,33 +47,39 @@ function fade(a: HTMLAudioElement, to: number, ms: number, then?: () => void) {
   requestAnimationFrame(step);
 }
 
-function tryPlay(a: HTMLAudioElement) {
-  a.play().catch((err) => console.warn("Müzik çalınamadı:", a.dataset.src, err));
+function tryPlay(a: HTMLAudioElement, name: string) {
+  a.play().catch((err) => console.warn("Müzik çalınamadı:", name, err));
 }
 
 function apply() {
   if (!unlocked) return;
-  const file = wanted ? FILES[wanted] : null;
-  if (current && current.dataset.src === file) return;
 
-  const old = current;
-  current = null;
-  if (old) fade(old, 0, FADE_MS, () => old.pause());
+  // Çalmaması gereken parçaları kıs ve durdur
+  for (const [name, a] of Object.entries(els)) {
+    if (!a || name === wanted) continue;
+    if (!a.paused && a.dataset.mode !== "out") {
+      a.dataset.mode = "out";
+      fadeTo(a, 0, FADE_MS, () => {
+        if (wanted !== name) a.pause();
+      });
+    }
+  }
 
-  if (file) {
-    const a = new Audio(file);
-    a.loop = true;
-    a.volume = 0;
+  // Çalması gereken parçayı başlat ve aç
+  if (wanted) {
+    const a = ensure(wanted);
     a.muted = muted;
-    a.dataset.src = file;
-    current = a;
-    tryPlay(a);
-    fade(a, VOLUME, FADE_MS);
+    if (a.paused) tryPlay(a, wanted);
+    if (a.dataset.mode !== "in") {
+      a.dataset.mode = "in";
+      fadeTo(a, VOLUME, FADE_MS);
+    }
   }
 }
 
 export function setTrack(t: Track) {
   wanted = t;
+  if (t) ensure(t); // dosyayı önceden indirmeye başla
   apply();
 }
 
@@ -82,11 +101,10 @@ export default function AudioManager() {
   const [off, setOff] = useState(false);
 
   useEffect(() => {
-    // Her tıklama ve tuşta: kilidi aç, çalması gereken parça durmuşsa tekrar dene
+    // Her tıklama ve tuşta: kilidi aç, durmuş parça varsa tekrar dene
     function interact() {
       unlocked = true;
       apply();
-      if (current && current.paused) tryPlay(current);
     }
     window.addEventListener("pointerdown", interact);
     window.addEventListener("keydown", interact);
@@ -99,7 +117,7 @@ export default function AudioManager() {
   function toggle() {
     muted = !muted;
     setOff(muted);
-    if (current) current.muted = muted;
+    for (const a of Object.values(els)) if (a) a.muted = muted;
   }
 
   return (
