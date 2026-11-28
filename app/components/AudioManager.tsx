@@ -13,78 +13,81 @@ const FILES: Record<Exclude<Track, null>, string> = {
 
 const VOLUME = 0.3; // müzik sesi (0 ile 1 arası)
 const FADE_MS = 1800; // fade in / fade out süresi
+const STEP_MS = 50;
 
-const els: Partial<Record<string, HTMLAudioElement>> = {};
-let wanted: Track = null;
-let unlocked = false;
-let muted = false;
+type State = {
+  els: Partial<Record<string, HTMLAudioElement>>;
+  wanted: Track;
+  unlocked: boolean;
+  muted: boolean;
+  timer: number | null;
+  lastTry: Record<string, number>;
+};
+
+// Kod yenilense bile aynı durum kullanılsın diye window üzerinde tutulur
+const g = globalThis as unknown as { __music?: State };
+function S(): State {
+  if (!g.__music) {
+    g.__music = { els: {}, wanted: null, unlocked: false, muted: false, timer: null, lastTry: {} };
+  }
+  return g.__music;
+}
 
 function ensure(name: Exclude<Track, null>) {
-  let a = els[name];
+  const s = S();
+  let a = s.els[name];
   if (!a) {
     a = new Audio(FILES[name]);
     a.loop = true;
     a.preload = "auto";
     a.volume = 0;
-    a.muted = muted;
-    els[name] = a;
+    a.muted = s.muted;
+    s.els[name] = a;
   }
   return a;
 }
 
-function fadeTo(a: HTMLAudioElement, to: number, ms: number, then?: () => void) {
-  const id = Math.random().toString(36);
-  a.dataset.fade = id; // yeni bir geçiş başlarsa eskisi durur
-  const from = a.volume;
-  const start = performance.now();
-  function step(now: number) {
-    if (a.dataset.fade !== id) return;
-    const k = Math.min(1, (now - start) / ms);
-    a.volume = from + (to - from) * k;
-    if (k < 1) requestAnimationFrame(step);
-    else then?.();
+function tick() {
+  const s = S();
+  const step = (VOLUME * STEP_MS) / FADE_MS;
+  for (const [name, a] of Object.entries(s.els)) {
+    if (!a) continue;
+    const target = s.unlocked && name === s.wanted ? VOLUME : 0;
+
+    // Çalması gereken parça duruyorsa (reddedilmiş ya da iptal olmuş) tekrar dene
+    if (target > 0 && a.paused) {
+      const now = performance.now();
+      if (now - (s.lastTry[name] ?? 0) > 1000) {
+        s.lastTry[name] = now;
+        a.play().catch((err) => console.warn("Müzik çalınamadı:", name, err));
+      }
+    }
+
+    // Sesi hedefe doğru yumuşakça yaklaştır
+    if (a.volume < target) a.volume = Math.min(target, a.volume + step);
+    else if (a.volume > target) a.volume = Math.max(target, a.volume - step);
+
+    // Tamamen kısılan parçayı durdur
+    if (target === 0 && a.volume === 0 && !a.paused) a.pause();
   }
-  requestAnimationFrame(step);
 }
 
-function tryPlay(a: HTMLAudioElement, name: string) {
-  a.play().catch((err) => console.warn("Müzik çalınamadı:", name, err));
-}
-
-function apply() {
-  if (!unlocked) return;
-
-  // Çalmaması gereken parçaları kıs ve durdur
-  for (const [name, a] of Object.entries(els)) {
-    if (!a || name === wanted) continue;
-    if (!a.paused && a.dataset.mode !== "out") {
-      a.dataset.mode = "out";
-      fadeTo(a, 0, FADE_MS, () => {
-        if (wanted !== name) a.pause();
-      });
-    }
-  }
-
-  // Çalması gereken parçayı başlat ve aç
-  if (wanted) {
-    const a = ensure(wanted);
-    a.muted = muted;
-    if (a.paused) tryPlay(a, wanted);
-    if (a.dataset.mode !== "in") {
-      a.dataset.mode = "in";
-      fadeTo(a, VOLUME, FADE_MS);
-    }
+function startLoop() {
+  const s = S();
+  if (s.timer === null && typeof window !== "undefined") {
+    s.timer = window.setInterval(tick, STEP_MS);
   }
 }
 
 export function setTrack(t: Track) {
-  wanted = t;
+  const s = S();
+  s.wanted = t;
   if (t) ensure(t); // dosyayı önceden indirmeye başla
-  apply();
+  startLoop();
 }
 
 export function playSfx(src: string, volume = 0.5) {
-  if (muted) return;
+  if (S().muted) return;
   const a = new Audio(src);
   a.volume = volume;
   a.play().catch(() => {});
@@ -101,10 +104,9 @@ export default function AudioManager() {
   const [off, setOff] = useState(false);
 
   useEffect(() => {
-    // Her tıklama ve tuşta: kilidi aç, durmuş parça varsa tekrar dene
+    startLoop();
     function interact() {
-      unlocked = true;
-      apply();
+      S().unlocked = true; // ilk tıklama ya da tuştan sonra müzik izni açılır
     }
     window.addEventListener("pointerdown", interact);
     window.addEventListener("keydown", interact);
@@ -115,9 +117,10 @@ export default function AudioManager() {
   }, []);
 
   function toggle() {
-    muted = !muted;
-    setOff(muted);
-    for (const a of Object.values(els)) if (a) a.muted = muted;
+    const s = S();
+    s.muted = !s.muted;
+    setOff(s.muted);
+    for (const a of Object.values(s.els)) if (a) a.muted = s.muted;
   }
 
   return (
